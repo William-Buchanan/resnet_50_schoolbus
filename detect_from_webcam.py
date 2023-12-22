@@ -29,15 +29,15 @@ def run_inference_for_single_image(model, image):
     output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
    
     # Handle models with masks:
-    if 'detection_masks' in output_dict:
-        # Reframe the the bbox mask to the image size.
-        detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
-                                    output_dict['detection_masks'], output_dict['detection_boxes'],
-                                    image.shape[0], image.shape[1])      
-        detection_masks_reframed = tf.cast(detection_masks_reframed > 0.5, tf.uint8)
-        output_dict['detection_masks_reframed'] = detection_masks_reframed.numpy()
+    # if 'detection_masks' in output_dict:
+    #     # Reframe the the bbox mask to the image size.
+    #     detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
+    #                                 output_dict['detection_masks'], output_dict['detection_boxes'],
+    #                                 image.shape[0], image.shape[1])      
+    #     detection_masks_reframed = tf.cast(detection_masks_reframed > 0.5, tf.uint8)
+    #     output_dict['detection_masks_reframed'] = detection_masks_reframed.numpy()
     
-    return output_dict
+    # return output_dict
 
 def parse_label_map(label_map_path):
     label_map = {}
@@ -73,13 +73,6 @@ def visualize_output(image_np, boxes, classes, scores, category_index, instance_
 
     return image_np
 
-# Rest of your main function and inference loop remains the same
-# Replace 'vis_util.visualize_boxes_and_labels_on_image_array' with 'visualize_output'
-
-# Example of using the new functions:
-# category_index = parse_label_map(args.labelmap)
-# visualize_output(image_np, output_dict, category_index)
-
 def run_inference(model, category_index, cap):
     while True:
         ret, image_np = cap.read()
@@ -112,6 +105,7 @@ if __name__ == '__main__':
     detection_model = load_model(args.model)
     category_index = parse_label_map(args.labelmap)
 
+    # Internal Webcam
     cap = cv2.VideoCapture(0)
 
     ### Hikvision IPCAM
@@ -120,5 +114,9 @@ if __name__ == '__main__':
 
     run_inference(detection_model, category_index, cap)
 
+
+# Faster Model
 # python .\detect_from_webcam.py -m ssd_mobilenet_v2_320x320_coco17_tpu-8\saved_model -l mscoco_label_map.pbtxt
+
+# Slower Model
 # python .\detect_from_webcam.py -m faster_rcnn_resnet50_v1_640x640_coco17_tpu-8\saved_model -l mscoco_label_map.pbtxt
